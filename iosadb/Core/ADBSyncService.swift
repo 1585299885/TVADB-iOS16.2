@@ -511,12 +511,19 @@ actor ADBFileService {
             }
 
             try Task.checkCancellation()
+            // 指定安装来源包名（com.zone.hmi.appstore）。
+            // 部分 OEM / HMI（车机）系统在安装 APK 时要求带 `-i <installer>` 安装来源标记，
+            // 否则应用会被装上但不显示桌面图标。对应 adb 命令：
+            //   adb install -r -i com.zone.hmi.appstore <app.apk>
+            let installerPackage = "com.zone.hmi.appstore"
             var arguments = localURLs.count == 1
                 ? ["pm", "install"]
                 : ["pm", "install-multiple"]
             if replace {
                 arguments.append("-r")
             }
+            arguments.append("-i")
+            arguments.append(installerPackage)
             arguments.append(contentsOf: remoteURLs.map(\.adbShellQuoted))
             let output = try await client.shell(
                 arguments.joined(separator: " ") + " 2>&1"
