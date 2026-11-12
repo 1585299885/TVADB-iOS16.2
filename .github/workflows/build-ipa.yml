@@ -1,0 +1,69 @@
+name: Build TVADB IPA for iOS 16.2
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+# 允许 workflow 用内置的 GITHUB_TOKEN 创建 Release（不需要任何额外凭据）
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun --show-sdk-version --sdk iphoneos
+
+      - name: Verify vendored ADB static library archive
+        run: |
+          test -f Vendor/adb-prebuilt/libadb-full-iphoneos-arm64.zip
+          test -f Vendor/adb-public/include/adb_public.h || ls Vendor/adb-public/include
+          echo "vendored ADB assets present"
+
+      - name: Build unsigned IPA (upstream script)
+        run: bash scripts/build-unsigned-ipa.sh
+
+      - name: Force deployment target to iOS 16.2
+        run: python3 scripts/patch-ios16.py dist/TVADB-unsigned.ipa dist/TVADB-iOS16.2-unsigned.ipa
+
+      - name: Verify no iOS 17 SwiftUI symbols remain
+        run: python3 scripts/check-symbols.py dist/TVADB-iOS16.2-unsigned.ipa
+
+      - name: Show checksum
+        run: shasum -a 256 dist/TVADB-iOS16.2-unsigned.ipa
+
+      - name: Upload IPA as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TVADB-iOS16.2-unsigned
+          path: dist/TVADB-iOS16.2-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      # 公开发布：产物变成无需认证即可下载的直链，便于取回成品
+      - name: Publish IPA as a public Release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="ios16.2-build-${{ github.run_number }}"
+          IPA="dist/TVADB-iOS16.2-unsigned.ipa"
+          gh release create "$TAG" "$IPA" \
+            --repo "${{ github.repository }}" \
+            --title "TVADB iOS 16.2 unsigned (build ${{ github.run_number }})" \
+            --notes "Automated unsigned IPA. Deployment target iOS 16.2, no strong-bound iOS 17 SwiftUI symbols. Install with TrollStore." \
+            || gh release upload "$TAG" "$IPA" --repo "${{ github.repository }}" --clobber
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+          echo "Release $TAG published"
+
+      - name: Print direct download URL
+        run: |
+          echo "https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/TVADB-iOS16.2-unsigned.ipa"
