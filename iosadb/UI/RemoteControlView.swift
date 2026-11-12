@@ -262,7 +262,7 @@ struct RemoteControlView: View {
         .onChange(of: controlMode) { mode in
             feedbackToken += 1
         }
-        .onChange(of: remoteControlOrderRawValue) {
+        .onChange(of: remoteControlOrderRawValue) { _, _ in
             controlMode = orderedControlModes.first ?? .gestures
         }
     }
@@ -569,10 +569,10 @@ struct RemoteControlView: View {
             fullScreenControlsExpanded = false
             gesturePadIsActive = false
         }
-        .onChange(of: liveScreenOrientationRawValue) {
+        .onChange(of: liveScreenOrientationRawValue) { _, _ in
             applyLiveScreenOrientation()
         }
-        .onChange(of: detectedLiveScreenOrientation) {
+        .onChange(of: detectedLiveScreenOrientation) { _, _ in
             guard liveScreenOrientationPreference == .automatic else {
                 return
             }

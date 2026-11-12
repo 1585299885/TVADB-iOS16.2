@@ -52,7 +52,7 @@ struct DeviceHomeView: View {
                 discovery.stop()
             }
         }
-        .onChange(of: appLanguage) {
+        .onChange(of: appLanguage) { _, _ in
             model.errorMessage = nil
             model.noticeMessage = nil
             if selectedTab == .home, autoScan {
