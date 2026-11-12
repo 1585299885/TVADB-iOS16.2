@@ -264,3 +264,32 @@ extension TVADBContentUnavailableView {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+
+import Combine
+
+// MARK: - iOS 16 兼容 onChange 垫片
+// iOS 18 SDK 已移除旧版双参数 onChange(of:_:)，仅剩 iOS 17 的 onChange(of:initial:_:)。
+// 此垫片用 onReceive + @State 跟踪，实现对 iOS 16.2 可用的等价 onChange 语义。
+extension View {
+    @ViewBuilder
+    func onChangeOf<V: Equatable>(_ value: V, perform action: @escaping (V) -> Void) -> some View {
+        modifier(_OnChangeShim(value: value, action: action))
+    }
+}
+
+private struct _OnChangeShim<V: Equatable>: ViewModifier {
+    let value: V
+    let action: (V) -> Void
+    @State private var stored: V?
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(Just(value)) { newValue in
+                if let stored, stored != newValue {
+                    action(newValue)
+                }
+                stored = newValue
+            }
+    }
+}

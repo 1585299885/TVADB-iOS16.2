@@ -165,10 +165,10 @@ struct RemoteControlView: View {
         .fullScreenCover(isPresented: $isLiveScreenFullScreen) {
             fullScreenLiveScreen
         }
-        .onChange(of: isLiveScreenFullScreen) { isPresented in
+        .onChangeOf( isLiveScreenFullScreen) { isPresented in
             handleFullScreenPresentationChange(isPresented)
         }
-        .onChange(of: currentLiveScreenSourceSize) { newSize in
+        .onChangeOf( currentLiveScreenSourceSize) { newSize in
             handleLiveScreenSourceSizeChange(
                 from: previousLiveScreenSourceSize,
                 to: newSize
@@ -259,10 +259,10 @@ struct RemoteControlView: View {
         .pickerStyle(.segmented)
         .padding(5)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .onChange(of: controlMode) { mode in
+        .onChangeOf( controlMode) { mode in
             feedbackToken += 1
         }
-        .onChange(of: remoteControlOrderRawValue) { _, _ in
+        .onChangeOf( remoteControlOrderRawValue) { _ in
             controlMode = orderedControlModes.first ?? .gestures
         }
     }
@@ -569,10 +569,10 @@ struct RemoteControlView: View {
             fullScreenControlsExpanded = false
             gesturePadIsActive = false
         }
-        .onChange(of: liveScreenOrientationRawValue) { _, _ in
+        .onChangeOf( liveScreenOrientationRawValue) { _ in
             applyLiveScreenOrientation()
         }
-        .onChange(of: detectedLiveScreenOrientation) { _, _ in
+        .onChangeOf( detectedLiveScreenOrientation) { _ in
             guard liveScreenOrientationPreference == .automatic else {
                 return
             }

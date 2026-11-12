@@ -45,14 +45,14 @@ struct DeviceHomeView: View {
             }
         }
         .tint(TVADBTheme.accent)
-        .onChange(of: selectedTab) { tab in
+        .onChangeOf( selectedTab) { tab in
             if tab == .home, autoScan {
                 startDiscovery()
             } else {
                 discovery.stop()
             }
         }
-        .onChange(of: appLanguage) { _, _ in
+        .onChangeOf( appLanguage) { _ in
             model.errorMessage = nil
             model.noticeMessage = nil
             if selectedTab == .home, autoScan {

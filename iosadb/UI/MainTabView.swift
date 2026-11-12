@@ -43,7 +43,7 @@ struct MainTabView: View {
                 }
         }
         .tint(TVADBTheme.accent)
-        .onChange(of: model.isScreenRecording) { isRecording in
+        .onChangeOf( model.isScreenRecording) { isRecording in
             if isRecording, openRemoteWhenRecording {
                 selectedTab = .remote
             }

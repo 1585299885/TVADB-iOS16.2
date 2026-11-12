@@ -116,7 +116,7 @@ struct TVADBSettingsForm: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .onChange(of: loadApplicationIcons) { isEnabled in
+        .onChangeOf( loadApplicationIcons) { isEnabled in
             Task {
                 await model.applicationIconLoadingDidChange(
                     isEnabled: isEnabled

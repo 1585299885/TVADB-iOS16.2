@@ -819,7 +819,7 @@ private struct LogcatView: View {
                     .padding(12)
                 }
                 .background(Color.black)
-                .onChange(of: filteredRecords.last?.id) { id in
+                .onChangeOf( filteredRecords.last?.id) { id in
                     guard autoScroll, let id else { return }
                     withAnimation(.easeOut(duration: 0.18)) {
                         proxy.scrollTo(id, anchor: .bottom)

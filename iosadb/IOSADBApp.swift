@@ -532,7 +532,7 @@ struct IOSADBApp: App {
                 .task {
                     await model.autoConnectLastDeviceIfNeeded()
                 }
-                .onChange(of: scenePhase) { phase in
+                .onChangeOf( scenePhase) { phase in
                     guard phase == .active else { return }
                     Task {
                         await model.autoConnectLastDeviceIfNeeded(force: true)
